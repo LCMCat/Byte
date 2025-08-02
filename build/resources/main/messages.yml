@@ -1,0 +1,15 @@
+# 命令反馈消息
+config-reloaded: "&a[字节] 配置已重载!"
+player-command: "&c此命令仅供玩家使用。"
+no-permission: "&c你没有权限使用该命令。"
+command-usage: "&c用法: %s"
+no-available-command: "&c没有可用的命令。"
+command-list-header: "&6==== Byte 命令帮助 ===="
+invalid-amount: "&c无效的金额!"
+player-not-found: "&c玩家不存在。"
+
+# 余额相关消息
+self-balance: "&a你的字节余额: &f%s"
+balance-added: "&a已为 &f%s &a增加 &f%s &a字节"
+balance-set: "&a已将 &f%s &a的字节设置为 &f%s"
+balance-taken: "&a已从 &f%s &a扣除 &f%s &a字节"

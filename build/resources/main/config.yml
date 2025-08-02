@@ -1,0 +1,10 @@
+mongo:
+  uri: "mongodb://localhost:27017"
+  database: "economy"
+
+currency:
+  symbol: "§9|||"
+
+cache:
+  ttl: 900000 # 15 minutes
+  sync-interval: 60 # seconds

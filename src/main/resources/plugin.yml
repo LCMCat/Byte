@@ -1,0 +1,9 @@
+name: ByteEconomy
+main: tech.ccat.byte.BytePlugin
+version: 1.0.0
+api-version: 1.20
+softdepend: [Vault]
+commands:
+  byte:
+    description: Manage byte currency
+    usage: /byte [add/set/take/reload]
