@@ -30,48 +30,48 @@ abstract class AdminCommand(
 
 class AddCommand() : AdminCommand("add", 2) {
     override fun execute(sender: CommandSender, args: Array<out String>): Boolean {
-        val target = Bukkit.getPlayer(args[1])
+        val target = Bukkit.getOfflinePlayerIfCached(args[1])
         val amount = args[2].toDoubleOrNull() ?: return amountError(sender)
 
-        if(target == null){
+        if(target == null || target.name == null){
             sender.sendMessage(MessageFormatter.format("player-not-found"))
             return true
         }
 
         service.addBalance(target.uniqueId, amount)
-        target.name.let { sender.sendMessage(MessageFormatter.format("balance-added", it, amount.toString())) }
+        sender.sendMessage(MessageFormatter.format("balance-added", target.name!!, amount.toString()))
         return true
     }
 }
 
 class SetCommand() : AdminCommand("set", 2) {
     override fun execute(sender: CommandSender, args: Array<out String>): Boolean {
-        val target = Bukkit.getPlayer(args[1])
+        val target = Bukkit.getOfflinePlayerIfCached(args[1])
         val amount = args[2].toDoubleOrNull() ?: return amountError(sender)
 
-        if(target == null){
+        if(target == null || target.name == null){
             sender.sendMessage(MessageFormatter.format("player-not-found"))
             return true
         }
 
         service.setBalance(target.uniqueId, amount)
-        target.name.let { sender.sendMessage(MessageFormatter.format("balance-set", it, amount.toString())) }
+        sender.sendMessage(MessageFormatter.format("balance-set", target.name!!, amount.toString()))
         return true
     }
 }
 
 class TakeCommand() : AdminCommand("take", 2) {
     override fun execute(sender: CommandSender, args: Array<out String>): Boolean {
-        val target = Bukkit.getPlayer(args[1])
+        val target = Bukkit.getOfflinePlayerIfCached(args[1])
         val amount = args[2].toDoubleOrNull() ?: return amountError(sender)
 
-        if(target == null){
+        if(target == null || target.name == null){
             sender.sendMessage(MessageFormatter.format("player-not-found"))
             return true
         }
 
         service.subtractBalance(target.uniqueId, amount)
-        target.name.let { sender.sendMessage(MessageFormatter.format("balance-taken", it, amount.toString())) }
+        sender.sendMessage(MessageFormatter.format("balance-taken", target.name!!, amount.toString()))
         return true
     }
 }

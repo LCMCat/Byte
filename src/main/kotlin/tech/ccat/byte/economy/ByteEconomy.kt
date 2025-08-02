@@ -28,7 +28,7 @@ class ByteEconomy() : Economy {
         return true
     }
 
-    override fun format(amount: Double) = "§9|||${formatter.format(amount)}"
+    override fun format(amount: Double) = "§9§k|||§9${formatter.format(amount)}"
     override fun getBalance(player: OfflinePlayer) = BytePlugin.instance.byteService.getBalance(player.uniqueId)
     @Deprecated("idk idea force me to do that")
     override fun getBalance(p0: String?, p1: String?): Double {

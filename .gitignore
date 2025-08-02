@@ -1,0 +1,14 @@
+/.kotlin/
+/build/
+/build/classes/
+/build/kotlin/
+/build/kotlin/compileKotlin/
+/build/kotlin/compileKotlin/cacheable/
+/build/kotlin/compileKotlin/cacheable/caches-jvm/
+/build/kotlin/compileKotlin/cacheable/last-build.bin
+/build/kotlin/compileKotlin/classpath-snapshot/
+/build/kotlin/compileKotlin/local-state/
+/build/libs/
+/build/libs/byte-1.0-SNAPSHOT.jar
+/build/resources/
+/build/tmp/

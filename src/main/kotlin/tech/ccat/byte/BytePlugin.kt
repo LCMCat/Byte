@@ -46,6 +46,7 @@ class BytePlugin : JavaPlugin() {
         // 注册命令
         commandManager = CommandManager().apply{
             registerCommand(SelfCheckCommand())
+            registerCommand(ShowCommand())
             registerCommand(AddCommand())
             registerCommand(SetCommand())
             registerCommand(TakeCommand())
