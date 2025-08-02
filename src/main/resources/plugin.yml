@@ -1,7 +1,7 @@
 name: ByteEconomy
 main: tech.ccat.byte.BytePlugin
 version: 1.0.0
-api-version: 1.20
+api-version: 1.21
 softdepend: [Vault]
 commands:
   byte:

@@ -11,7 +11,6 @@ interface PlayerDataDao {
     // 原子更新方法
     fun atomicUpdate(
         uuid: UUID,
-        currentVersion: Long,
         update: (PlayerData) -> PlayerData
     ): Boolean
 }

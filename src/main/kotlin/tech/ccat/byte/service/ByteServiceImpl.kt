@@ -32,7 +32,7 @@ class ByteServiceImpl(private val dao: PlayerDataDao): ByteService{
             print(data.uuid)
             val newBalance = update(data.balance)
 
-            success = dao.atomicUpdate(uuid, data.version) {
+            success = dao.atomicUpdate(uuid) {
                 it.copy(balance = newBalance)
             }
 

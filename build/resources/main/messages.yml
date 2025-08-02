@@ -9,7 +9,7 @@ invalid-amount: "&c无效的金额!"
 player-not-found: "&c玩家不存在。"
 
 # 余额相关消息
-self-balance: "&a你的字节余额: &f%s"
-balance-added: "&a已为 &f%s &a增加 &f%s &a字节"
+self-balance: "&a你的字节余额: &9%s|||"
+balance-added: "&a已为 &f%s &a增加 &9%s||| &a字节"
 balance-set: "&a已将 &f%s &a的字节设置为 &f%s"
-balance-taken: "&a已从 &f%s &a扣除 &f%s &a字节"
+balance-taken: "&a已从 &f%s &a扣除 &9%s||| &a字节"

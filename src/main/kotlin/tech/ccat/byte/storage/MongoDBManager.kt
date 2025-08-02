@@ -8,12 +8,16 @@ import org.bson.UuidRepresentation
 import org.bson.codecs.configuration.CodecRegistries
 import org.bson.codecs.configuration.CodecRegistry
 import org.bson.codecs.pojo.PojoCodecProvider
-import tech.ccat.byte.config.PluginConfig
 import tech.ccat.byte.storage.dao.MongoPlayerDataDao
 import tech.ccat.byte.storage.dao.PlayerDataDao
 import tech.ccat.byte.storage.model.PlayerData
 
-class MongoDBManager(private val config: PluginConfig) {private var mongoClient = MongoClients.create()
+import tech.ccat.byte.BytePlugin.Companion.instance
+
+class MongoDBManager() {private var mongoClient = MongoClients.create()
+
+    private val config = instance.configManager.pluginConfig
+
     private lateinit var database: MongoDatabase
 
     // 创建包含 POJO 支持的编解码器注册表
@@ -50,7 +54,7 @@ class MongoDBManager(private val config: PluginConfig) {private var mongoClient 
     }
 
 
-    fun reconnect(config: PluginConfig) {
+    fun reconnect() {
         close()
         connect()
     }

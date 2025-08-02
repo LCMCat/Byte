@@ -1,9 +1,7 @@
-// UuidCodec.kt
 package tech.ccat.byte.storage
 
 import org.bson.*
 import org.bson.codecs.*
-import org.bson.codecs.configuration.CodecRegistry
 import java.util.*
 
 class UuidCodec : Codec<UUID> {

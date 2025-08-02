@@ -1,6 +1,5 @@
 package tech.ccat.byte.service
 
-import org.bukkit.OfflinePlayer
 import java.util.*
 
 interface ByteService {

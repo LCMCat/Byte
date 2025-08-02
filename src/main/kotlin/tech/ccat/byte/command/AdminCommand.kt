@@ -2,7 +2,7 @@ package tech.ccat.byte.command
 
 import org.bukkit.Bukkit
 import org.bukkit.command.CommandSender
-import tech.ccat.byte.service.ByteService
+import tech.ccat.byte.BytePlugin.Companion.instance
 import tech.ccat.byte.util.MessageFormatter
 
 abstract class AdminCommand(
@@ -14,6 +14,9 @@ abstract class AdminCommand(
     usage = "/byte $name <玩家> <数量>",
     minArgs = minArgs
 ) {
+
+    val service = instance.byteService
+
     override fun onTabComplete(sender: CommandSender, args: Array<out String>): List<String> {
         if (args.size == 2) return Bukkit.getOnlinePlayers().map { it.name }
         return emptyList()
@@ -25,7 +28,7 @@ abstract class AdminCommand(
     }
 }
 
-class AddCommand(private val service: ByteService) : AdminCommand("add", 2) {
+class AddCommand() : AdminCommand("add", 2) {
     override fun execute(sender: CommandSender, args: Array<out String>): Boolean {
         val target = Bukkit.getPlayer(args[1])
         val amount = args[2].toDoubleOrNull() ?: return amountError(sender)
@@ -36,12 +39,12 @@ class AddCommand(private val service: ByteService) : AdminCommand("add", 2) {
         }
 
         service.addBalance(target.uniqueId, amount)
-        target.name?.let { sender.sendMessage(MessageFormatter.format("balance-added", it, amount.toString())) }
+        target.name.let { sender.sendMessage(MessageFormatter.format("balance-added", it, amount.toString())) }
         return true
     }
 }
 
-class SetCommand(private val service: ByteService) : AdminCommand("set", 2) {
+class SetCommand() : AdminCommand("set", 2) {
     override fun execute(sender: CommandSender, args: Array<out String>): Boolean {
         val target = Bukkit.getPlayer(args[1])
         val amount = args[2].toDoubleOrNull() ?: return amountError(sender)
@@ -52,12 +55,12 @@ class SetCommand(private val service: ByteService) : AdminCommand("set", 2) {
         }
 
         service.setBalance(target.uniqueId, amount)
-        target.name?.let { sender.sendMessage(MessageFormatter.format("balance-set", it, amount.toString())) }
+        target.name.let { sender.sendMessage(MessageFormatter.format("balance-set", it, amount.toString())) }
         return true
     }
 }
 
-class TakeCommand(private val service: ByteService) : AdminCommand("take", 2) {
+class TakeCommand() : AdminCommand("take", 2) {
     override fun execute(sender: CommandSender, args: Array<out String>): Boolean {
         val target = Bukkit.getPlayer(args[1])
         val amount = args[2].toDoubleOrNull() ?: return amountError(sender)
@@ -68,7 +71,7 @@ class TakeCommand(private val service: ByteService) : AdminCommand("take", 2) {
         }
 
         service.subtractBalance(target.uniqueId, amount)
-        target.name?.let { sender.sendMessage(MessageFormatter.format("balance-taken", it, amount.toString())) }
+        target.name.let { sender.sendMessage(MessageFormatter.format("balance-taken", it, amount.toString())) }
         return true
     }
 }

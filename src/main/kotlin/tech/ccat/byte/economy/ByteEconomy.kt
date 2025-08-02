@@ -6,9 +6,7 @@ import org.bukkit.OfflinePlayer
 import tech.ccat.byte.BytePlugin
 import java.text.DecimalFormat
 
-class ByteEconomy(
-    private val currencySymbol: String
-) : Economy {
+class ByteEconomy() : Economy {
     private val formatter = DecimalFormat("#,##0.00")
     override fun isEnabled(): Boolean {
         TODO("Not yet implemented")
@@ -25,12 +23,14 @@ class ByteEconomy(
 
     override fun currencyNamePlural() = "Bytes"
     override fun currencyNameSingular() = "Byte"
+    @Deprecated("idk idea force me to do that")
     override fun hasAccount(p0: String?): Boolean {
         return true
     }
 
-    override fun format(amount: Double) = "$currencySymbol${formatter.format(amount)}"
+    override fun format(amount: Double) = "§9|||${formatter.format(amount)}"
     override fun getBalance(player: OfflinePlayer) = BytePlugin.instance.byteService.getBalance(player.uniqueId)
+    @Deprecated("idk idea force me to do that")
     override fun getBalance(p0: String?, p1: String?): Double {
         TODO("Not yet implemented")
     }
@@ -39,6 +39,7 @@ class ByteEconomy(
         TODO("Not yet implemented")
     }
 
+    @Deprecated("idk idea force me to do that")
     override fun has(p0: String?, p1: Double): Boolean {
         TODO("Not yet implemented")
     }
@@ -47,6 +48,7 @@ class ByteEconomy(
         TODO("Not yet implemented")
     }
 
+    @Deprecated("idk idea force me to do that")
     override fun has(p0: String?, p1: String?, p2: Double): Boolean {
         TODO("Not yet implemented")
     }
@@ -55,6 +57,7 @@ class ByteEconomy(
         TODO("Not yet implemented")
     }
 
+    @Deprecated("idk idea force me to do that")
     override fun withdrawPlayer(p0: String?, p1: Double): EconomyResponse? {
         TODO("Not yet implemented")
     }
@@ -66,6 +69,7 @@ class ByteEconomy(
         TODO("Not yet implemented")
     }
 
+    @Deprecated("idk idea force me to do that")
     override fun withdrawPlayer(
         p0: String?,
         p1: String?,
@@ -82,11 +86,13 @@ class ByteEconomy(
         TODO("Not yet implemented")
     }
 
+    @Deprecated("idk idea force me to do that")
     override fun depositPlayer(p0: String?, p1: Double): EconomyResponse? {
         TODO("Not yet implemented")
     }
 
     override fun hasAccount(player: OfflinePlayer) = true
+    @Deprecated("idk idea force me to do that")
     override fun hasAccount(p0: String?, p1: String?): Boolean {
         TODO("Not yet implemented")
     }
@@ -95,6 +101,7 @@ class ByteEconomy(
         TODO("Not yet implemented")
     }
 
+    @Deprecated("idk idea force me to do that")
     override fun getBalance(p0: String?): Double {
         TODO("Not yet implemented")
     }
@@ -103,6 +110,7 @@ class ByteEconomy(
         TODO("Not yet implemented")
     }
 
+    @Deprecated("idk idea force me to do that")
     override fun createPlayerAccount(p0: String?, p1: String?): Boolean {
         TODO("Not yet implemented")
     }
@@ -114,13 +122,14 @@ class ByteEconomy(
     override fun depositPlayer(player: OfflinePlayer, amount: Double): EconomyResponse {
         if (amount <= 0) return EconomyResponse(0.0, 0.0,
             EconomyResponse.ResponseType.FAILURE, "Amount must be positive")
-        val service = BytePlugin.instance.byteService;
+        val service = BytePlugin.instance.byteService
         service.addBalance(player.uniqueId, amount)
         val newBalance = service.getBalance(player.uniqueId)
         return EconomyResponse(amount, newBalance,
             EconomyResponse.ResponseType.SUCCESS, "存款成功")
     }
 
+    @Deprecated("idk idea force me to do that")
     override fun depositPlayer(
         p0: String?,
         p1: String?,
@@ -137,6 +146,7 @@ class ByteEconomy(
         TODO("Not yet implemented")
     }
 
+    @Deprecated("idk idea force me to do that")
     override fun createBank(p0: String?, p1: String?): EconomyResponse? {
         TODO("Not yet implemented")
     }
@@ -168,6 +178,7 @@ class ByteEconomy(
         TODO("Not yet implemented")
     }
 
+    @Deprecated("idk idea force me to do that")
     override fun isBankOwner(p0: String?, p1: String?): EconomyResponse? {
         TODO("Not yet implemented")
     }
@@ -179,6 +190,7 @@ class ByteEconomy(
         TODO("Not yet implemented")
     }
 
+    @Deprecated("idk idea force me to do that")
     override fun isBankMember(p0: String?, p1: String?): EconomyResponse? {
         TODO("Not yet implemented")
     }
@@ -194,6 +206,7 @@ class ByteEconomy(
         TODO("Not yet implemented")
     }
 
+    @Deprecated("idk idea force me to do that")
     override fun createPlayerAccount(p0: String?): Boolean {
         TODO("Not yet implemented")
     }

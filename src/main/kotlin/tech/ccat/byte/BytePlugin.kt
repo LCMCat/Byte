@@ -9,7 +9,6 @@ import tech.ccat.byte.economy.EconomyManager
 import tech.ccat.byte.service.ByteService
 import tech.ccat.byte.service.ByteServiceImpl
 import tech.ccat.byte.storage.MongoDBManager
-import tech.ccat.byte.storage.dao.MongoPlayerDataDao
 
 class BytePlugin : JavaPlugin() {
     companion object {
@@ -17,7 +16,7 @@ class BytePlugin : JavaPlugin() {
             private set
     }
 
-    lateinit var mongoDBManager: MongoDBManager
+    private lateinit var mongoDBManager: MongoDBManager
     lateinit var economyManager: EconomyManager
     lateinit var configManager: ConfigManager
     lateinit var commandManager: CommandManager
@@ -28,10 +27,10 @@ class BytePlugin : JavaPlugin() {
         saveDefaultConfig()
 
         // 初始化配置
-        configManager = ConfigManager(this).apply { setup() }
+        configManager = ConfigManager().apply { setup() }
 
         // 初始化MongoDB
-        mongoDBManager = MongoDBManager(configManager.pluginConfig)
+        mongoDBManager = MongoDBManager()
         mongoDBManager.connect()
 
 
@@ -40,31 +39,31 @@ class BytePlugin : JavaPlugin() {
 
         // 注册经济系统
         economyManager = EconomyManager(
-            ByteEconomy(configManager.pluginConfig.symbol)
+            ByteEconomy()
         )
         economyManager.registerEconomy()
 
         // 注册命令
-        commandManager = CommandManager(this).apply{
-            registerCommand(SelfCheckCommand(byteService))
-            registerCommand(AddCommand(byteService))
-            registerCommand(SetCommand(byteService))
-            registerCommand(TakeCommand(byteService))
+        commandManager = CommandManager().apply{
+            registerCommand(SelfCheckCommand())
+            registerCommand(AddCommand())
+            registerCommand(SetCommand())
+            registerCommand(TakeCommand())
             registerCommand(ReloadCommand())
         }
         this.getCommand("byte")?.setExecutor(commandManager)
 
-        logger.info("Byte economy system enabled!")
+        logger.info("字节经济系统已启动.")
     }
 
     override fun onDisable() {
         mongoDBManager.close()
         economyManager.unregisterEconomy()
-        logger.info("Byte economy system disabled!")
+        logger.info("字节经济系统已关闭!")
     }
 
     fun reload() {
         configManager.reloadAll()
-        mongoDBManager.reconnect(configManager.pluginConfig)
+        mongoDBManager.reconnect()
     }
 }

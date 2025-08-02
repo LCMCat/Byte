@@ -27,7 +27,6 @@ class MongoPlayerDataDao(
 
     override fun atomicUpdate(
         uuid: UUID,
-        currentVersion: Long,
         update: (PlayerData) -> PlayerData
     ): Boolean {
         return try {
@@ -47,7 +46,7 @@ class MongoPlayerDataDao(
             )
 
             result.modifiedCount == 1L
-        } catch (e: Exception) {
+        } catch (ignored: Exception) {
             false
         }
     }

@@ -1,10 +1,11 @@
 package tech.ccat.byte.config
 
 import org.bukkit.configuration.file.YamlConfiguration
-import org.bukkit.plugin.java.JavaPlugin
 import java.io.File
 
-class ConfigManager(private val plugin: JavaPlugin) {
+import tech.ccat.byte.BytePlugin.Companion.instance
+
+class ConfigManager() {
     private val configs = mutableMapOf<String, YamlConfiguration>()
     private val configFiles = mutableMapOf<String, File>()
 
@@ -19,9 +20,9 @@ class ConfigManager(private val plugin: JavaPlugin) {
     }
 
     private fun saveDefaultConfig(fileName: String) {
-        val file = File(plugin.dataFolder, fileName)
+        val file = File(instance.dataFolder, fileName)
         if (!file.exists()) {
-            plugin.saveResource(fileName, false)
+            instance.saveResource(fileName, false)
         }
         configFiles[fileName] = file
         configs[fileName] = YamlConfiguration.loadConfiguration(file)
