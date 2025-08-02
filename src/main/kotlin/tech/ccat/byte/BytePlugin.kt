@@ -46,8 +46,20 @@ class BytePlugin : JavaPlugin() {
         economyManager.registerEconomy()
 
         // 注册命令
+        loadCommand()
+
+        logger.info("经济系统已启动.")
+    }
+
+    override fun onDisable() {
+        mongoDBManager.close()
+        economyManager.unregisterEconomy()
+        logger.info("经济系统已关闭!")
+    }
+
+    fun loadCommand(){
         commandEntrance = configManager.pluginConfig.commandEntrance
-            commandManager = CommandManager().apply{
+        commandManager = CommandManager().apply{
             registerCommand(SelfCheckCommand())
             registerCommand(ShowCommand())
             registerCommand(AddCommand())
@@ -56,19 +68,12 @@ class BytePlugin : JavaPlugin() {
             registerCommand(ReloadCommand())
         }
         this.getCommand(commandEntrance)?.setExecutor(commandManager)
-
-        logger.info("字节经济系统已启动.")
-    }
-
-    override fun onDisable() {
-        mongoDBManager.close()
-        economyManager.unregisterEconomy()
-        logger.info("字节经济系统已关闭!")
     }
 
     fun reload() {
         configManager.reloadAll()
-        commandEntrance = configManager.pluginConfig.commandEntrance
         mongoDBManager.reconnect()
+        byteService = ByteServiceImpl(mongoDBManager.getPlayerDataDao())
+        loadCommand()
     }
 }
