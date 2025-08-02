@@ -1,3 +1,10 @@
+currency:
+  name: "Byte"
+  flag: "§9§k|||§r"
+command:
+  #主命令入口名称
+  entrance: "byte"
 mongo:
   uri: "mongodb://localhost:27017"
   database: "byte_economy"
+  collection: "BytesCollection"

@@ -22,6 +22,8 @@ class BytePlugin : JavaPlugin() {
     lateinit var commandManager: CommandManager
     lateinit var byteService: ByteService
 
+    lateinit var commandEntrance: String
+
     override fun onEnable() {
         instance = this
         saveDefaultConfig()
@@ -44,7 +46,8 @@ class BytePlugin : JavaPlugin() {
         economyManager.registerEconomy()
 
         // 注册命令
-        commandManager = CommandManager().apply{
+        commandEntrance = configManager.pluginConfig.commandEntrance
+            commandManager = CommandManager().apply{
             registerCommand(SelfCheckCommand())
             registerCommand(ShowCommand())
             registerCommand(AddCommand())
@@ -52,7 +55,7 @@ class BytePlugin : JavaPlugin() {
             registerCommand(TakeCommand())
             registerCommand(ReloadCommand())
         }
-        this.getCommand("byte")?.setExecutor(commandManager)
+        this.getCommand(commandEntrance)?.setExecutor(commandManager)
 
         logger.info("字节经济系统已启动.")
     }
@@ -65,6 +68,7 @@ class BytePlugin : JavaPlugin() {
 
     fun reload() {
         configManager.reloadAll()
+        commandEntrance = configManager.pluginConfig.commandEntrance
         mongoDBManager.reconnect()
     }
 }

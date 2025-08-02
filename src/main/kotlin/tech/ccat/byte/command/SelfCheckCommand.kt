@@ -8,7 +8,7 @@ import tech.ccat.byte.BytePlugin.Companion.instance
 
 class SelfCheckCommand() : AbstractCommand(
     name = "",
-    usage = "/byte",
+    usage = "/${instance.commandEntrance}",
     playerOnly = true
 ) {
 

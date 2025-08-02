@@ -8,8 +8,8 @@ import tech.ccat.byte.BytePlugin.Companion.instance
 
 class ShowCommand() : AbstractCommand(
     name = "show",
-    permission = "byte.admin",
-    usage = "/byte show <玩家>",
+    permission = "${instance.commandEntrance}.admin",
+    usage = "/${instance.commandEntrance} show <玩家>",
     minArgs = 1
 ) {
     val service = instance.byteService

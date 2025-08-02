@@ -48,7 +48,7 @@ class MongoDBManager() {private var mongoClient = MongoClients.create()
 
     fun getPlayerDataDao(): PlayerDataDao {
         return MongoPlayerDataDao(
-            database.getCollection("BytesCollection", PlayerData::class.java)
+            database.getCollection(config.mongoCollection, PlayerData::class.java)
                 .withCodecRegistry(codecRegistry) // 应用编解码器到集合
         )
     }

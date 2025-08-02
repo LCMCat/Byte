@@ -3,16 +3,20 @@ package tech.ccat.byte.economy
 import net.milkbowl.vault.economy.Economy
 import net.milkbowl.vault.economy.EconomyResponse
 import org.bukkit.OfflinePlayer
-import tech.ccat.byte.BytePlugin
 import java.text.DecimalFormat
 
+import tech.ccat.byte.BytePlugin.Companion.instance
+
 class ByteEconomy() : Economy {
+
+    private val config = instance.configManager.pluginConfig
+
     private val formatter = DecimalFormat("#,##0.00")
     override fun isEnabled(): Boolean {
         TODO("Not yet implemented")
     }
 
-    override fun getName() = "Byte Economy"
+    override fun getName() = config.currencyName + " Economy"
     override fun hasBankSupport(): Boolean {
         return false
     }
@@ -21,15 +25,15 @@ class ByteEconomy() : Economy {
         return 1
     }
 
-    override fun currencyNamePlural() = "Bytes"
-    override fun currencyNameSingular() = "Byte"
+    override fun currencyNamePlural() = config.currencyName
+    override fun currencyNameSingular() = config.currencyName
     @Deprecated("idk idea force me to do that")
     override fun hasAccount(p0: String?): Boolean {
         return true
     }
 
-    override fun format(amount: Double) = "§9§k|||§9${formatter.format(amount)}"
-    override fun getBalance(player: OfflinePlayer) = BytePlugin.instance.byteService.getBalance(player.uniqueId)
+    override fun format(amount: Double) = "${config.currencyFlag}${formatter.format(amount)}"
+    override fun getBalance(player: OfflinePlayer) = instance.byteService.getBalance(player.uniqueId)
     @Deprecated("idk idea force me to do that")
     override fun getBalance(p0: String?, p1: String?): Double {
         TODO("Not yet implemented")
@@ -122,7 +126,7 @@ class ByteEconomy() : Economy {
     override fun depositPlayer(player: OfflinePlayer, amount: Double): EconomyResponse {
         if (amount <= 0) return EconomyResponse(0.0, 0.0,
             EconomyResponse.ResponseType.FAILURE, "Amount must be positive")
-        val service = BytePlugin.instance.byteService
+        val service = instance.byteService
         service.addBalance(player.uniqueId, amount)
         val newBalance = service.getBalance(player.uniqueId)
         return EconomyResponse(amount, newBalance,

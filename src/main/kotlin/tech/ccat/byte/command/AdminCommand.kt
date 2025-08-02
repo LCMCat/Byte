@@ -10,12 +10,12 @@ abstract class AdminCommand(
     minArgs: Int
 ) : AbstractCommand(
     name = name,
-    permission = "byte.admin",
-    usage = "/byte $name <玩家> <数量>",
+    permission = "${instance.commandEntrance}.admin",
+    usage = "/${instance.commandEntrance} $name <玩家> <数量>",
     minArgs = minArgs
 ) {
 
-    val service = instance.byteService
+    protected val service = instance.byteService
 
     override fun onTabComplete(sender: CommandSender, args: Array<out String>): List<String> {
         if (args.size == 2) return Bukkit.getOnlinePlayers().map { it.name }
