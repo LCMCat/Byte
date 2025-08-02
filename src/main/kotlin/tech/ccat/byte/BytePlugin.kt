@@ -46,7 +46,7 @@ class BytePlugin : JavaPlugin() {
         economyManager.registerEconomy()
 
         // 注册命令
-        loadCommand()
+        reloadCommand()
 
         logger.info("经济系统已启动.")
     }
@@ -57,7 +57,7 @@ class BytePlugin : JavaPlugin() {
         logger.info("经济系统已关闭!")
     }
 
-    fun loadCommand(){
+    fun reloadCommand(){
         commandEntrance = configManager.pluginConfig.commandEntrance
         commandManager = CommandManager().apply{
             registerCommand(SelfCheckCommand())
@@ -74,6 +74,6 @@ class BytePlugin : JavaPlugin() {
         configManager.reloadAll()
         mongoDBManager.reconnect()
         byteService = ByteServiceImpl(mongoDBManager.getPlayerDataDao())
-        loadCommand()
+        reloadCommand()
     }
 }
