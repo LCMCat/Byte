@@ -27,10 +27,10 @@ abstract class AdminCommand(
 
 class AddCommand(private val service: ByteService) : AdminCommand("add", 2) {
     override fun execute(sender: CommandSender, args: Array<out String>): Boolean {
-        val target = Bukkit.getOfflinePlayer(args[1])
+        val target = Bukkit.getPlayer(args[1])
         val amount = args[2].toDoubleOrNull() ?: return amountError(sender)
 
-        if(target.name == null){
+        if(target == null){
             sender.sendMessage(MessageFormatter.format("player-not-found"))
             return true
         }
@@ -43,10 +43,10 @@ class AddCommand(private val service: ByteService) : AdminCommand("add", 2) {
 
 class SetCommand(private val service: ByteService) : AdminCommand("set", 2) {
     override fun execute(sender: CommandSender, args: Array<out String>): Boolean {
-        val target = Bukkit.getOfflinePlayer(args[1])
+        val target = Bukkit.getPlayer(args[1])
         val amount = args[2].toDoubleOrNull() ?: return amountError(sender)
 
-        if(target.name == null){
+        if(target == null){
             sender.sendMessage(MessageFormatter.format("player-not-found"))
             return true
         }
@@ -59,10 +59,10 @@ class SetCommand(private val service: ByteService) : AdminCommand("set", 2) {
 
 class TakeCommand(private val service: ByteService) : AdminCommand("take", 2) {
     override fun execute(sender: CommandSender, args: Array<out String>): Boolean {
-        val target = Bukkit.getOfflinePlayer(args[1])
+        val target = Bukkit.getPlayer(args[1])
         val amount = args[2].toDoubleOrNull() ?: return amountError(sender)
 
-        if(target.name == null){
+        if(target == null){
             sender.sendMessage(MessageFormatter.format("player-not-found"))
             return true
         }

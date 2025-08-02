@@ -3,13 +3,11 @@ package tech.ccat.byte.economy
 import net.milkbowl.vault.economy.Economy
 import net.milkbowl.vault.economy.EconomyResponse
 import org.bukkit.OfflinePlayer
-import tech.ccat.byte.storage.cache.CacheManager
-import tech.ccat.byte.storage.model.PlayerData
+import tech.ccat.byte.BytePlugin
 import java.text.DecimalFormat
 
 class ByteEconomy(
-    private val currencySymbol: String,
-    private val cacheManager: CacheManager
+    private val currencySymbol: String
 ) : Economy {
     private val formatter = DecimalFormat("#,##0.00")
     override fun isEnabled(): Boolean {
@@ -32,7 +30,7 @@ class ByteEconomy(
     }
 
     override fun format(amount: Double) = "$currencySymbol${formatter.format(amount)}"
-    override fun getBalance(player: OfflinePlayer) = cacheManager.getData(player.uniqueId).balance
+    override fun getBalance(player: OfflinePlayer) = BytePlugin.instance.byteService.getBalance(player.uniqueId)
     override fun getBalance(p0: String?, p1: String?): Double {
         TODO("Not yet implemented")
     }
@@ -102,8 +100,7 @@ class ByteEconomy(
     }
 
     override fun createPlayerAccount(player: OfflinePlayer): Boolean {
-        cacheManager.getData(player.uniqueId)
-        return true
+        TODO("Not yet implemented")
     }
 
     override fun createPlayerAccount(p0: String?, p1: String?): Boolean {
@@ -117,12 +114,11 @@ class ByteEconomy(
     override fun depositPlayer(player: OfflinePlayer, amount: Double): EconomyResponse {
         if (amount <= 0) return EconomyResponse(0.0, 0.0,
             EconomyResponse.ResponseType.FAILURE, "Amount must be positive")
-
-        val data = cacheManager.getData(player.uniqueId)
-        data.balance += amount
-        data.dirty = true
-        return EconomyResponse(amount, data.balance,
-            EconomyResponse.ResponseType.SUCCESS, "")
+        val service = BytePlugin.instance.byteService;
+        service.addBalance(player.uniqueId, amount)
+        val newBalance = service.getBalance(player.uniqueId)
+        return EconomyResponse(amount, newBalance,
+            EconomyResponse.ResponseType.SUCCESS, "存款成功")
     }
 
     override fun depositPlayer(

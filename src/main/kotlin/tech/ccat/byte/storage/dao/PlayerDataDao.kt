@@ -5,6 +5,13 @@ import java.util.*
 
 interface PlayerDataDao {
     fun load(uuid: UUID): PlayerData?
-    fun save(data: PlayerData)
-    fun delete(uuid: UUID)
+
+    fun create(data: PlayerData): Boolean
+
+    // 原子更新方法
+    fun atomicUpdate(
+        uuid: UUID,
+        currentVersion: Long,
+        update: (PlayerData) -> PlayerData
+    ): Boolean
 }

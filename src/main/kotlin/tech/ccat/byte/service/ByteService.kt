@@ -9,5 +9,4 @@ interface ByteService {
     fun setBalance(uuid: UUID, amount: Double)
     fun addBalance(uuid: UUID, amount: Double)
     fun subtractBalance(uuid: UUID, amount: Double)
-    fun reload()
 }

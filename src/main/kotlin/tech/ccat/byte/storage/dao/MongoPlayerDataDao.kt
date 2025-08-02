@@ -1,10 +1,10 @@
-// MongoPlayerDataDao.kt
 package tech.ccat.byte.storage.dao
 
+import com.mongodb.MongoWriteException
 import com.mongodb.client.MongoCollection
-import org.bson.conversions.Bson
 import tech.ccat.byte.storage.model.PlayerData
 import java.util.*
+import com.mongodb.client.model.Filters.and
 import com.mongodb.client.model.Filters.eq
 
 class MongoPlayerDataDao(
@@ -12,18 +12,43 @@ class MongoPlayerDataDao(
 ) : PlayerDataDao {
 
     override fun load(uuid: UUID): PlayerData? {
-        return collection.find(eq("_id", uuid)).first()
+        return collection.find(eq("uuid", uuid)).first()
     }
 
-    override fun save(data: PlayerData) {
-        collection.replaceOne(
-            eq("_id", data.uuid),
-            data,
-            com.mongodb.client.model.ReplaceOptions().upsert(true)
-        )
+    override fun create(data: PlayerData): Boolean {
+        return try {
+            collection.insertOne(data)
+            true
+        } catch (e: MongoWriteException) {
+            // 已经存在的情况不算错误
+            e.code == 11000
+        }
     }
 
-    override fun delete(uuid: UUID) {
-        collection.deleteOne(eq("_id", uuid))
+    override fun atomicUpdate(
+        uuid: UUID,
+        currentVersion: Long,
+        update: (PlayerData) -> PlayerData
+    ): Boolean {
+        return try {
+            // 读取当前数据
+            val current = collection.find(eq("uuid", uuid)).first()
+                ?: return false
+
+            // 创建更新后对象
+            val updated = update(current).apply {
+                version = current.version + 1  // 增加版本号
+            }
+
+            // 原子条件更新
+            val result = collection.replaceOne(
+                and(eq("uuid", uuid), eq("version", current.version)),
+                updated
+            )
+
+            result.modifiedCount == 1L
+        } catch (e: Exception) {
+            false
+        }
     }
 }
