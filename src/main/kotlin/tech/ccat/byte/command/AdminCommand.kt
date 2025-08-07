@@ -39,7 +39,13 @@ class AddCommand() : AdminCommand("add", 2) {
         }
 
         service.addBalance(target.uniqueId, amount)
-        sender.sendMessage(MessageFormatter.format("balance-added", target.name!!, amount.toString()))
+            .whenCompleteAsync { success, error ->
+                if (error != null) {
+                    sender.sendMessage(MessageFormatter.format("balance-update-failed", error.message!!))
+                } else {
+                    sender.sendMessage(MessageFormatter.format("balance-added", target.name!!, amount.toString()))
+                }
+            }
         return true
     }
 }
@@ -55,7 +61,13 @@ class SetCommand() : AdminCommand("set", 2) {
         }
 
         service.setBalance(target.uniqueId, amount)
-        sender.sendMessage(MessageFormatter.format("balance-set", target.name!!, amount.toString()))
+            .whenCompleteAsync { success, error ->
+                if (error != null) {
+                    sender.sendMessage(MessageFormatter.format("balance-update-failed", error.message!!))
+                } else {
+                    sender.sendMessage(MessageFormatter.format("balance-set", target.name!!, amount.toString()))
+                }
+            }
         return true
     }
 }
@@ -71,7 +83,13 @@ class TakeCommand() : AdminCommand("take", 2) {
         }
 
         service.subtractBalance(target.uniqueId, amount)
-        sender.sendMessage(MessageFormatter.format("balance-taken", target.name!!, amount.toString()))
+            .whenCompleteAsync { success, error ->
+                if (error != null) {
+                    sender.sendMessage(MessageFormatter.format("balance-update-failed", error.message!!))
+                } else {
+                    sender.sendMessage(MessageFormatter.format("balance-taken", target.name!!, amount.toString()))
+                }
+            }
         return true
     }
 }
