@@ -3,19 +3,20 @@ package tech.ccat.byte.command
 import org.bukkit.Bukkit
 import org.bukkit.command.CommandSender
 import tech.ccat.byte.BytePlugin.Companion.instance
+import tech.ccat.byte.service.ByteService
 import tech.ccat.byte.util.MessageFormatter
 
 abstract class AdminCommand(
     name: String,
-    minArgs: Int
+    minArgs: Int,
+    private val commandEntrance: String,
+    protected val service: ByteService
 ) : AbstractCommand(
     name = name,
-    permission = "${instance.commandEntrance}.admin",
-    usage = "/${instance.commandEntrance} $name <玩家> <数量>",
+    permission = "$commandEntrance.admin",
+    usage = "/$commandEntrance $name <玩家> <数量>",
     minArgs = minArgs
 ) {
-
-    protected val service = instance.byteService
 
     override fun onTabComplete(sender: CommandSender, args: Array<out String>): List<String> {
         if (args.size == 2) return Bukkit.getOnlinePlayers().map { it.name }
@@ -28,7 +29,7 @@ abstract class AdminCommand(
     }
 }
 
-class AddCommand() : AdminCommand("add", 2) {
+class AddCommand(private val commandEntrance: String, service: ByteService) : AdminCommand("add", 2, commandEntrance, service) {
     override fun execute(sender: CommandSender, args: Array<out String>): Boolean {
         val target = Bukkit.getOfflinePlayerIfCached(args[1])
         val amount = args[2].toDoubleOrNull() ?: return amountError(sender)
@@ -50,7 +51,7 @@ class AddCommand() : AdminCommand("add", 2) {
     }
 }
 
-class SetCommand() : AdminCommand("set", 2) {
+class SetCommand(private val commandEntrance: String, service: ByteService) : AdminCommand("set", 2, commandEntrance, service) {
     override fun execute(sender: CommandSender, args: Array<out String>): Boolean {
         val target = Bukkit.getOfflinePlayerIfCached(args[1])
         val amount = args[2].toDoubleOrNull() ?: return amountError(sender)
@@ -72,7 +73,7 @@ class SetCommand() : AdminCommand("set", 2) {
     }
 }
 
-class TakeCommand() : AdminCommand("take", 2) {
+class TakeCommand(private val commandEntrance: String, service: ByteService) : AdminCommand("take", 2, commandEntrance, service) {
     override fun execute(sender: CommandSender, args: Array<out String>): Boolean {
         val target = Bukkit.getOfflinePlayerIfCached(args[1])
         val amount = args[2].toDoubleOrNull() ?: return amountError(sender)

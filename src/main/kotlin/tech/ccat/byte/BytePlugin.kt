@@ -3,13 +3,14 @@ package tech.ccat.byte
 import org.bukkit.plugin.ServicePriority
 import org.bukkit.plugin.java.JavaPlugin
 import tech.ccat.byte.command.CommandManager
-import tech.ccat.byte.command.*
 import tech.ccat.byte.config.ConfigManager
-import tech.ccat.byte.economy.ByteEconomy
+import tech.ccat.byte.core.ServiceLocator
 import tech.ccat.byte.economy.EconomyManager
 import tech.ccat.byte.service.ByteService
-import tech.ccat.byte.service.ByteServiceImpl
 import tech.ccat.byte.storage.MongoDBManager
+import tech.ccat.byte.util.LoggerUtil
+import tech.ccat.byte.util.ExceptionHandler
+import tech.ccat.byte.exception.ConfigException
 
 class BytePlugin : JavaPlugin() {
     companion object {
@@ -17,11 +18,14 @@ class BytePlugin : JavaPlugin() {
             private set
     }
 
-    private lateinit var mongoDBManager: MongoDBManager
-    lateinit var economyManager: EconomyManager
-    lateinit var configManager: ConfigManager
-    lateinit var commandManager: CommandManager
-    lateinit var byteService: ByteService
+    private lateinit var serviceLocator: ServiceLocator
+    
+    // 通过ServiceLocator暴露服务
+    val configManager: ConfigManager get() = serviceLocator.configManager
+    val mongoDBManager: MongoDBManager get() = serviceLocator.mongoDBManager
+    val byteService: ByteService get() = serviceLocator.byteService
+    val economyManager: EconomyManager get() = serviceLocator.economyManager
+    val commandManager: CommandManager get() = serviceLocator.commandManager
 
     lateinit var commandEntrance: String
 
@@ -30,15 +34,8 @@ class BytePlugin : JavaPlugin() {
         saveDefaultConfig()
 
         try {
-            // 初始化配置
-            configManager = ConfigManager().apply { setup() }
-
-            // 初始化MongoDB
-            mongoDBManager = MongoDBManager()
-            mongoDBManager.connect()
-
-            // 初始化服务层
-            byteService = ByteServiceImpl(mongoDBManager.getPlayerDataDao())
+            // 初始化服务定位器
+            serviceLocator = ServiceLocator(this).apply { initialize() }
 
             // 注册服务
             server.servicesManager.register(
@@ -49,22 +46,18 @@ class BytePlugin : JavaPlugin() {
             )
 
             // 注册经济系统
-            economyManager = EconomyManager(
-                ByteEconomy()
-            )
             economyManager.registerEconomy()
 
             // 注册命令
             reloadCommand()
 
-            logger.info("经济系统已启动.")
+            LoggerUtil.info("经济系统已启动.")
         } catch (e: Exception) {
-            logger.severe("经济系统初始化失败: ${e.message}")
-            e.printStackTrace()
+            ExceptionHandler.handleException(e, "经济系统初始化失败")
             
             // 根据配置决定是否关闭服务器
-            if (configManager.pluginConfig.shutdownOnFailure) {
-                logger.severe("根据配置，服务器将在初始化失败后关闭.")
+            if (serviceLocator.shutdownOnFailure) {
+                LoggerUtil.severe("根据配置，服务器将在初始化失败后关闭.")
                 server.shutdown()
             }
         }
@@ -73,28 +66,22 @@ class BytePlugin : JavaPlugin() {
     override fun onDisable() {
         mongoDBManager.close()
         economyManager.unregisterEconomy()
-        logger.info("经济系统已关闭!")
+        LoggerUtil.info("经济系统已关闭!")
     }
 
     fun reloadCommand(){
-        commandEntrance = configManager.pluginConfig.commandEntrance
-        commandManager = CommandManager().apply{
-            registerCommand(SelfCheckCommand())
-            registerCommand(ShowCommand())
-            registerCommand(AddCommand())
-            registerCommand(SetCommand())
-            registerCommand(TakeCommand())
-            registerCommand(ReloadCommand())
-            registerCommand(TotalCommand())
-            registerCommand(RichestCommand())
-        }
+        commandEntrance = serviceLocator.commandEntrance
         this.getCommand(commandEntrance)?.setExecutor(commandManager)
     }
 
     fun reload() {
-        configManager.reloadAll()
-        mongoDBManager.reconnect()
-        byteService = ByteServiceImpl(mongoDBManager.getPlayerDataDao())
-        reloadCommand()
+        try {
+            serviceLocator.reload()
+            reloadCommand()
+            LoggerUtil.info("配置已重新加载.")
+        } catch (e: Exception) {
+            ExceptionHandler.handleException(e, "重新加载配置失败")
+            throw ConfigException("重新加载配置失败", e)
+        }
     }
 }

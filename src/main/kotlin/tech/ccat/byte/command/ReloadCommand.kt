@@ -5,10 +5,10 @@ import tech.ccat.byte.util.MessageFormatter
 
 import tech.ccat.byte.BytePlugin.Companion.instance
 
-class ReloadCommand : AbstractCommand(
+class ReloadCommand(private val commandEntrance: String) : AbstractCommand(
     name = "reload",
-    permission = "${instance.commandEntrance}.admin",
-    usage = "/${instance.commandEntrance} reload"
+    permission = "$commandEntrance.admin",
+    usage = "/$commandEntrance reload"
 ) {
     override fun execute(sender: CommandSender, args: Array<out String>): Boolean {
         instance.reload()

@@ -23,7 +23,9 @@ dependencies {
     compileOnly("io.papermc.paper:paper-api:1.21.3-R0.1-SNAPSHOT")
     implementation("org.mongodb:mongodb-driver-sync:5.4.0")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0")
-    compileOnly("com.github.MilkBowl:VaultAPI:1.7")
+    compileOnly("com.github.MilkBowl:VaultAPI:1.7.1") {
+        exclude(group = "org.bukkit", module = "bukkit")
+    }
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
 }
 

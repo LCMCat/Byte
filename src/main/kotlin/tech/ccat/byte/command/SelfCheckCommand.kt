@@ -2,17 +2,16 @@ package tech.ccat.byte.command
 
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
+import tech.ccat.byte.service.ByteService
 import tech.ccat.byte.util.MessageFormatter
 
 import tech.ccat.byte.BytePlugin.Companion.instance
 
-class SelfCheckCommand() : AbstractCommand(
+class SelfCheckCommand(private val commandEntrance: String, private val service: ByteService) : AbstractCommand(
     name = "",
-    usage = "/${instance.commandEntrance}",
+    usage = "/$commandEntrance",
     playerOnly = true
 ) {
-
-    val service = instance.byteService
 
     override fun execute(sender: CommandSender, args: Array<out String>): Boolean {
         val player = sender as Player

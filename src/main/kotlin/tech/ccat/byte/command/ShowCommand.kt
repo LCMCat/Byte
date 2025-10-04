@@ -2,17 +2,17 @@ package tech.ccat.byte.command
 
 import org.bukkit.Bukkit
 import org.bukkit.command.CommandSender
+import tech.ccat.byte.service.ByteService
 import tech.ccat.byte.util.MessageFormatter
 
 import tech.ccat.byte.BytePlugin.Companion.instance
 
-class ShowCommand() : AbstractCommand(
+class ShowCommand(private val commandEntrance: String, private val service: ByteService) : AbstractCommand(
     name = "show",
-    permission = "${instance.commandEntrance}.admin",
-    usage = "/${instance.commandEntrance} show <玩家>",
+    permission = "$commandEntrance.admin",
+    usage = "/$commandEntrance show <玩家>",
     minArgs = 1
 ) {
-    val service = instance.byteService
 
     override fun execute(sender: CommandSender, args: Array<out String>): Boolean {
         val target = Bukkit.getOfflinePlayerIfCached(args[1])

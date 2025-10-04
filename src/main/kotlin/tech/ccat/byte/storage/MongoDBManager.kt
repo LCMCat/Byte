@@ -8,16 +8,14 @@ import org.bson.UuidRepresentation
 import org.bson.codecs.configuration.CodecRegistries
 import org.bson.codecs.configuration.CodecRegistry
 import org.bson.codecs.pojo.PojoCodecProvider
+import tech.ccat.byte.config.PluginConfig
 import tech.ccat.byte.storage.dao.MongoPlayerDataDao
 import tech.ccat.byte.storage.dao.PlayerDataDao
 import tech.ccat.byte.storage.model.PlayerData
+import java.util.concurrent.TimeUnit
 
-import tech.ccat.byte.BytePlugin.Companion.instance
-
-class MongoDBManager() {
+class MongoDBManager(private val config: PluginConfig) {
     private var mongoClient = MongoClients.create()
-
-    private val config = instance.configManager.pluginConfig
 
     private lateinit var database: MongoDatabase
 
@@ -40,6 +38,21 @@ class MongoDBManager() {
             .applyConnectionString(ConnectionString(config.mongoUri))
             .codecRegistry(codecRegistry)
             .uuidRepresentation(UuidRepresentation.STANDARD) // 关键配置
+            // 连接池配置
+            .applyToConnectionPoolSettings { builder ->
+                builder
+                    .maxSize(20) // 最大连接数
+                    .minSize(5)  // 最小连接数
+                    .maxWaitTime(10, TimeUnit.SECONDS) // 获取连接的最大等待时间
+                    .maxConnectionLifeTime(30, TimeUnit.MINUTES) // 连接的最大生命周期
+                    .maxConnectionIdleTime(10, TimeUnit.MINUTES) // 连接的最大空闲时间
+            }
+            // 服务器设置
+            .applyToSocketSettings { builder ->
+                builder
+                    .connectTimeout(10, TimeUnit.SECONDS) // 连接超时
+                    .readTimeout(30, TimeUnit.SECONDS)    // 读取超时
+            }
             .build()
 
         mongoClient = MongoClients.create(settings)
@@ -54,11 +67,6 @@ class MongoDBManager() {
         )
     }
 
-
-    fun reconnect() {
-        close()
-        connect()
-    }
 
     fun close() {
         mongoClient.close()

@@ -4,12 +4,11 @@ import net.milkbowl.vault.economy.Economy
 import net.milkbowl.vault.economy.EconomyResponse
 import org.bukkit.OfflinePlayer
 import java.text.DecimalFormat
+import tech.ccat.byte.config.PluginConfig
 
 import tech.ccat.byte.BytePlugin.Companion.instance
 
-class ByteEconomy() : Economy {
-
-    private val config = instance.configManager.pluginConfig
+class ByteEconomy(private val config: PluginConfig) : Economy {
 
     private val formatter = DecimalFormat("#,##0.00")
     override fun isEnabled(): Boolean {
