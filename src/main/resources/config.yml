@@ -6,5 +6,7 @@ command:
   entrance: "byte"
 mongo:
   uri: "mongodb://localhost:27017"
-  database: "byte_economy"
+  database: "CatTitanium"
   collection: "BytesCollection"
+# 当初始化失败时是否自动关闭服务器（默认false）
+shutdown-on-failure: false

@@ -21,4 +21,8 @@ interface PlayerDataDao {
         uuid: UUID,
         update: (PlayerData) -> PlayerData
     ): CompletableFuture<Boolean>
+
+    // 获取所有玩家数据
+    fun getAllPlayers(): List<PlayerData>
+    fun getAllPlayersAsync(): CompletableFuture<List<PlayerData>>
 }

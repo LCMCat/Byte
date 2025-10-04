@@ -15,7 +15,6 @@ class ConfigManager() {
     fun setup() {
         saveDefaultConfig("config.yml")
         saveDefaultConfig("messages.yml")
-
         reloadAll()
     }
 

@@ -84,4 +84,17 @@ class MongoPlayerDataDao(
         })
         return future
     }
+
+    override fun getAllPlayers(): List<PlayerData> {
+        return collection.find().into(mutableListOf())
+    }
+
+    override fun getAllPlayersAsync(): CompletableFuture<List<PlayerData>> {
+        val future = CompletableFuture<List<PlayerData>>()
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, Runnable{
+            val players = getAllPlayers()
+            future.complete(players)
+        })
+        return future
+    }
 }

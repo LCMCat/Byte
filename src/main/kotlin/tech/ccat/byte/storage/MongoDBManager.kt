@@ -14,7 +14,8 @@ import tech.ccat.byte.storage.model.PlayerData
 
 import tech.ccat.byte.BytePlugin.Companion.instance
 
-class MongoDBManager() {private var mongoClient = MongoClients.create()
+class MongoDBManager() {
+    private var mongoClient = MongoClients.create()
 
     private val config = instance.configManager.pluginConfig
 

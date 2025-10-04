@@ -2,6 +2,7 @@ package tech.ccat.byte.service
 
 import kotlinx.coroutines.Runnable
 import org.bukkit.Bukkit
+import org.bukkit.OfflinePlayer
 import tech.ccat.byte.storage.dao.PlayerDataDao
 import tech.ccat.byte.storage.model.PlayerData
 import java.util.*
@@ -133,5 +134,43 @@ class ByteServiceImpl(private val dao: PlayerDataDao): ByteService{
             if (current < amount) throw IllegalStateException("余额不足")
             current - amount
         })
+    }
+
+    override fun getTotalMoney(): CompletableFuture<Double> {
+        return dao.getAllPlayersAsync().thenApply { players ->
+            players.sumOf { it.balance }
+        }
+    }
+
+    override fun getRichestPlayers(limit: Int): CompletableFuture<List<Pair<OfflinePlayer, Double>>> {
+        return dao.getAllPlayersAsync().thenApply { players ->
+            
+            if (players.isEmpty()) {
+                return@thenApply emptyList()
+            }
+            
+            val sortedPlayers = players
+                .sortedByDescending { it.balance }
+                .take(limit)
+            
+            if (sortedPlayers.isEmpty()) {
+                return@thenApply emptyList()
+            }
+            
+            val result = mutableListOf<Pair<OfflinePlayer, Double>>()
+            
+            sortedPlayers.forEach { playerData ->
+                try {
+                    val offlinePlayer = Bukkit.getOfflinePlayer(playerData.uuid)
+                    // 尝试获取玩家名称，如果获取不到则使用UUID作为显示名称
+                    val playerName = offlinePlayer.name ?: playerData.uuid.toString().substring(0, 8) + "..."
+                    result.add(Pair(offlinePlayer, playerData.balance))
+                } catch (e: Exception) {
+                    println("[Byte] 错误: 处理玩家数据时出错 - UUID: ${playerData.uuid}, 错误: ${e.message}")
+                }
+            }
+            
+            result
+        }
     }
 }
