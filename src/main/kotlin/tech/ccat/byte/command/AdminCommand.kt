@@ -2,9 +2,9 @@ package tech.ccat.byte.command
 
 import org.bukkit.Bukkit
 import org.bukkit.command.CommandSender
-import tech.ccat.byte.BytePlugin.Companion.instance
 import tech.ccat.byte.service.ByteService
 import tech.ccat.byte.util.MessageFormatter
+import tech.ccat.byte.util.MessageKeys
 
 abstract class AdminCommand(
     name: String,
@@ -24,7 +24,7 @@ abstract class AdminCommand(
     }
 
     fun amountError(sender: CommandSender): Boolean {
-        sender.sendMessage(MessageFormatter.format("invalid-amount"))
+        sender.sendMessage(MessageFormatter.format(MessageKeys.INVALID_AMOUNT))
         return false
     }
 }
@@ -35,16 +35,16 @@ class AddCommand(private val commandEntrance: String, service: ByteService) : Ad
         val amount = args[2].toDoubleOrNull() ?: return amountError(sender)
 
         if(target == null || target.name == null){
-            sender.sendMessage(MessageFormatter.format("player-not-found"))
+            sender.sendMessage(MessageFormatter.format(MessageKeys.PLAYER_NOT_FOUND))
             return true
         }
 
         service.addBalance(target.uniqueId, amount)
             .whenCompleteAsync { success, error ->
                 if (error != null) {
-                    sender.sendMessage(MessageFormatter.format("balance-update-failed", error.message!!))
+                    sender.sendMessage(MessageFormatter.format(MessageKeys.BALANCE_UPDATE_FAILED, error.message!!))
                 } else {
-                    sender.sendMessage(MessageFormatter.format("balance-added", target.name!!, amount.toString()))
+                    sender.sendMessage(MessageFormatter.format(MessageKeys.BALANCE_ADD, target.name!!, amount.toString()))
                 }
             }
         return true
@@ -57,16 +57,16 @@ class SetCommand(private val commandEntrance: String, service: ByteService) : Ad
         val amount = args[2].toDoubleOrNull() ?: return amountError(sender)
 
         if(target == null || target.name == null){
-            sender.sendMessage(MessageFormatter.format("player-not-found"))
+            sender.sendMessage(MessageFormatter.format(MessageKeys.PLAYER_NOT_FOUND))
             return true
         }
 
         service.setBalance(target.uniqueId, amount)
             .whenCompleteAsync { success, error ->
                 if (error != null) {
-                    sender.sendMessage(MessageFormatter.format("balance-update-failed", error.message!!))
+                    sender.sendMessage(MessageFormatter.format(MessageKeys.BALANCE_UPDATE_FAILED, error.message!!))
                 } else {
-                    sender.sendMessage(MessageFormatter.format("balance-set", target.name!!, amount.toString()))
+                    sender.sendMessage(MessageFormatter.format(MessageKeys.BALANCE_SET, target.name!!, amount.toString()))
                 }
             }
         return true
@@ -79,16 +79,16 @@ class TakeCommand(private val commandEntrance: String, service: ByteService) : A
         val amount = args[2].toDoubleOrNull() ?: return amountError(sender)
 
         if(target == null || target.name == null){
-            sender.sendMessage(MessageFormatter.format("player-not-found"))
+            sender.sendMessage(MessageFormatter.format(MessageKeys.PLAYER_NOT_FOUND))
             return true
         }
 
         service.subtractBalance(target.uniqueId, amount)
             .whenCompleteAsync { success, error ->
                 if (error != null) {
-                    sender.sendMessage(MessageFormatter.format("balance-update-failed", error.message!!))
+                    sender.sendMessage(MessageFormatter.format(MessageKeys.BALANCE_UPDATE_FAILED, error.message!!))
                 } else {
-                    sender.sendMessage(MessageFormatter.format("balance-taken", target.name!!, amount.toString()))
+                    sender.sendMessage(MessageFormatter.format(MessageKeys.BALANCE_TAKE, target.name!!, amount.toString()))
                 }
             }
         return true

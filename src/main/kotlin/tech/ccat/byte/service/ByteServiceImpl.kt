@@ -3,7 +3,10 @@ package tech.ccat.byte.service
 import org.bukkit.Bukkit
 import org.bukkit.OfflinePlayer
 import tech.ccat.byte.storage.dao.PlayerDataDao
+import tech.ccat.byte.storage.dao.TransactionRecordDao
 import tech.ccat.byte.storage.model.PlayerData
+import tech.ccat.byte.storage.model.TransactionRecord
+import tech.ccat.byte.storage.model.TransactionType
 import java.util.*
 import java.util.concurrent.CompletableFuture
 import kotlin.random.Random
@@ -17,7 +20,10 @@ import tech.ccat.byte.util.LoggerUtil
  * 该类实现了ByteService接口，提供了玩家经济系统的完整实现。
  * 包括余额查询、修改、并发安全更新、排行榜等功能。
  */
-class ByteServiceImpl(private val dao: PlayerDataDao): ByteService{
+class ByteServiceImpl(
+    private val dao: PlayerDataDao,
+    private val transactionRecordDao: TransactionRecordDao
+) : ByteService {
 
     private val plugin = instance
 
@@ -203,6 +209,121 @@ class ByteServiceImpl(private val dao: PlayerDataDao): ByteService{
     /**
      * {@inheritDoc}
      */
+    override fun transferBalance(fromUuid: UUID, toUuid: UUID, amount: Double): CompletableFuture<Boolean> {
+        // 创建CompletableFuture用于返回结果
+        val future = CompletableFuture<Boolean>()
+        
+        // 首先检查发送方是否有足够的余额
+        getOrCreateAsync(fromUuid).thenCompose<Void> { fromData ->
+            if (fromData.balance < amount) {
+                future.completeExceptionally(IllegalStateException("发送方余额不足"))
+                CompletableFuture.completedFuture(false)
+            } else {
+                // 执行转账操作
+                performTransfer(fromUuid, toUuid, amount, future)
+                future
+            }
+            CompletableFuture.completedFuture(null)
+        }.exceptionally { ex ->
+            future.completeExceptionally(ex)
+            null
+        }
+        
+        return future
+    }
+    
+    /**
+     * 执行转账操作的实际逻辑
+     *
+     * @param fromUuid 发送方玩家的唯一标识符
+     * @param toUuid 接收方玩家的唯一标识符
+     * @param amount 转账金额
+     * @param future 用于返回异步结果的CompletableFuture
+     */
+    private fun performTransfer(
+        fromUuid: UUID,
+        toUuid: UUID,
+        amount: Double,
+        future: CompletableFuture<Boolean>
+    ) {
+        // 先从发送方扣除金额
+        subtractBalance(fromUuid, amount).thenCompose<Boolean> { deductSuccess ->
+            if (deductSuccess) {
+                // 再给接收方增加金额
+                addBalance(toUuid, amount).thenAccept { addSuccess ->
+                    if (addSuccess) {
+                        // 记录交易历史
+                        recordTransaction(fromUuid, toUuid, amount)
+                        future.complete(true)
+                    } else {
+                        // 如果给接收方增加金额失败，需要回滚操作
+                        // 将金额返还给发送方
+                        addBalance(fromUuid, amount).whenComplete { _, _ ->
+                            future.completeExceptionally(RuntimeException("转账失败，已回滚操作"))
+                        }
+                    }
+                }.exceptionally { ex ->
+                    // 如果给接收方增加金额出现异常，需要回滚操作
+                    addBalance(fromUuid, amount).whenComplete { _, _ ->
+                        future.completeExceptionally(RuntimeException("转账过程中发生错误，已回滚操作: ${ex.message}"))
+                    }
+                    null
+                }
+                
+                // 返回一个完成的CompletableFuture以满足thenCompose的要求
+                CompletableFuture.completedFuture(null)
+            } else {
+                future.complete(false)
+                CompletableFuture.completedFuture(null)
+            }
+        }.exceptionally { ex ->
+            future.completeExceptionally(ex)
+            null
+        }
+    }
+    
+    /**
+     * 记录交易历史
+     *
+     * @param fromUuid 发送方玩家的唯一标识符
+     * @param toUuid 接收方玩家的唯一标识符
+     * @param amount 转账金额
+     */
+    private fun recordTransaction(fromUuid: UUID, toUuid: UUID, amount: Double) {
+        // 异步获取双方余额用于记录
+        val fromBalanceFuture = getOrCreateAsync(fromUuid).thenApply { it.balance }
+        val toBalanceFuture = getOrCreateAsync(toUuid).thenApply { it.balance }
+        
+        // 当两个余额都获取完成后，创建交易记录
+        CompletableFuture.allOf(fromBalanceFuture, toBalanceFuture).thenRun {
+            val fromBalance = fromBalanceFuture.get()
+            val toBalance = toBalanceFuture.get()
+            
+            val transactionRecord = TransactionRecord(
+                uuid = UUID.randomUUID(),
+                fromPlayerUuid = fromUuid,
+                toPlayerUuid = toUuid,
+                amount = amount,
+                timestamp = System.currentTimeMillis(),
+                type = TransactionType.PLAYER_TO_PLAYER,
+                description = "玩家转账",
+                fromPlayerBalanceBefore = fromBalance + amount,
+                fromPlayerBalanceAfter = fromBalance,
+                toPlayerBalanceBefore = toBalance - amount,
+                toPlayerBalanceAfter = toBalance
+            )
+            
+            // 异步保存交易记录
+            transactionRecordDao.create(transactionRecord)
+        }.exceptionally { ex ->
+            LoggerUtil.severe("记录交易历史失败: ${ex.message}", ex)
+            null
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     override fun getTotalMoney(): CompletableFuture<Double> {
         return dao.getAllPlayersAsync().thenApply { players ->
             players.sumOf { it.balance }
@@ -242,5 +363,19 @@ class ByteServiceImpl(private val dao: PlayerDataDao): ByteService{
             
             result
         }
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    override fun getTransactionRecords(playerUuid: UUID, page: Int, pageSize: Int): CompletableFuture<List<TransactionRecord>> {
+        return transactionRecordDao.getRecordsByPlayer(playerUuid, page, pageSize)
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    override fun getAllTransactionRecords(page: Int, pageSize: Int): CompletableFuture<List<TransactionRecord>> {
+        return transactionRecordDao.getAllRecords(page, pageSize)
     }
 }

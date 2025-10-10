@@ -41,7 +41,10 @@ class ServiceLocator(private val plugin: BytePlugin) {
     }
     
     private fun createByteService(): ByteService {
-        return tech.ccat.byte.service.ByteServiceImpl(mongoDBManager.getPlayerDataDao())
+        return tech.ccat.byte.service.ByteServiceImpl(
+            mongoDBManager.getPlayerDataDao(),
+            mongoDBManager.getTransactionRecordDao()
+        )
     }
     
     private fun createEconomyManager(): EconomyManager {
@@ -60,6 +63,7 @@ class ServiceLocator(private val plugin: BytePlugin) {
             registerCommand(tech.ccat.byte.command.ReloadCommand(commandEntrance))
             registerCommand(tech.ccat.byte.command.TotalCommand(commandEntrance, byteService))
             registerCommand(tech.ccat.byte.command.RichestCommand(commandEntrance, byteService))
+            registerCommand(tech.ccat.byte.command.TransactionHistoryCommand(commandEntrance, byteService))
         }
     }
     

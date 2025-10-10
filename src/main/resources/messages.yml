@@ -14,6 +14,7 @@ balance-added: "&a已为 &f%s &a增加 &9%s&k|||&a 字节"
 balance-set: "&a已将 &f%s &a的字节设置为 &f%s"
 balance-taken: "&a已从 &f%s &a扣除 &9%s&k|||&a 字节"
 balance-show: "&a玩家 &f%s &a的字节余额为:  &9%s&k|||&a"
+balance-update-failed: "&c更新余额失败: %s"
 
 # 货币总量相关消息
 calculating-total-money: "&a正在计算服务器货币总量..."
@@ -22,8 +23,21 @@ total-money-failed: "&c获取服务器货币总量失败: %s"
 
 # 最富有玩家排行榜相关消息
 fetching-richest-players: "&a正在获取前 &e%s &a名最富有玩家..."
-richest-players-header-paginated: "&6==== 最富有玩家排行榜 (第 %s/%s 页, 共 %s 名玩家) ===="
+richest-players-header-paginated: "&6==== 最富有玩家排行榜 (第 %s/%s 页, 共 %s 名玩家) ===="        
 richest-player-entry: "&e%d. &f%s &a- &e%s"
 richest-players-failed: "&c获取最富有玩家排行榜失败: %s"
 no-players-found: "&c未找到任何玩家数据。"
 richest-players-next-page: "&a输入 &e/byte richest %s &a查看下一页"
+
+# 交易历史相关消息
+transaction-history-header: "&6==== 交易历史记录 (第 %s 页) ===="
+transaction-history-empty: "&c没有找到交易记录"
+transaction-history-next-page: "&a输入 &e/byte transactionhistory %s &a查看下一页"
+transaction-history-invalid-page: "&c页码必须是一个正整数"
+transaction-history-fetch-failed: "&c获取交易记录失败: %s"
+transaction-history-entry-transfer-send: "&7[%s] &c-%s &7转账给 &f%s"
+transaction-history-entry-transfer-receive: "&7[%s] &a+%s &7来自 &f%s"
+transaction-history-entry-admin-add: "&7[%s] &a+%s &7管理员添加"
+transaction-history-entry-admin-set: "&7[%s] &e%s &7管理员设置余额"
+transaction-history-entry-admin-take: "&7[%s] &c-%s &7管理员扣除"
+transaction-history-entry-system: "&7[%s] &b%s &7%s"

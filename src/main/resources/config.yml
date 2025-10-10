@@ -8,5 +8,6 @@ mongo:
   uri: "mongodb://localhost:27017"
   database: "CatTitanium"
   collection: "BytesCollection"
+  transaction_records_collection: "transaction_records"
 # 当初始化失败时是否自动关闭服务器（默认false）
 shutdown-on-failure: false

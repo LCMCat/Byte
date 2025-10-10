@@ -1,6 +1,7 @@
 package tech.ccat.byte.service
 
 import org.bukkit.OfflinePlayer
+import tech.ccat.byte.storage.model.TransactionRecord
 import java.util.*
 import java.util.concurrent.CompletableFuture
 
@@ -56,6 +57,17 @@ interface ByteService {
     fun subtractBalance(uuid: UUID, amount: Double): CompletableFuture<Boolean>
     
     /**
+     * 从一个玩家转账指定数量的货币到另一个玩家
+     *
+     * @param fromUuid 发送方玩家的唯一标识符
+     * @param toUuid 接收方玩家的唯一标识符
+     * @param amount 要转账的金额
+     * @return 异步操作结果，成功返回true，失败返回false
+     * @throws IllegalStateException 当发送方余额不足时抛出此异常
+     */
+    fun transferBalance(fromUuid: UUID, toUuid: UUID, amount: Double): CompletableFuture<Boolean>
+    
+    /**
      * 获取服务器中所有玩家的货币总量
      *
      * @return 异步返回服务器总货币量
@@ -69,4 +81,23 @@ interface ByteService {
      * @return 异步返回玩家排行榜列表，每个元素包含玩家对象和其余额
      */
     fun getRichestPlayers(limit: Int): CompletableFuture<List<Pair<OfflinePlayer, Double>>>
+    
+    /**
+     * 根据玩家UUID获取其相关的交易记录（分页）
+     *
+     * @param playerUuid 玩家UUID
+     * @param page 页码（从1开始）
+     * @param pageSize 每页记录数
+     * @return 异步返回交易记录列表
+     */
+    fun getTransactionRecords(playerUuid: UUID, page: Int, pageSize: Int): CompletableFuture<List<TransactionRecord>>
+    
+    /**
+     * 获取所有交易记录（分页）
+     *
+     * @param page 页码（从1开始）
+     * @param pageSize 每页记录数
+     * @return 异步返回交易记录列表
+     */
+    fun getAllTransactionRecords(page: Int, pageSize: Int): CompletableFuture<List<TransactionRecord>>
 }

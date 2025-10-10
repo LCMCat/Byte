@@ -10,8 +10,11 @@ import org.bson.codecs.configuration.CodecRegistry
 import org.bson.codecs.pojo.PojoCodecProvider
 import tech.ccat.byte.config.PluginConfig
 import tech.ccat.byte.storage.dao.MongoPlayerDataDao
+import tech.ccat.byte.storage.dao.MongoTransactionRecordDao
 import tech.ccat.byte.storage.dao.PlayerDataDao
+import tech.ccat.byte.storage.dao.TransactionRecordDao
 import tech.ccat.byte.storage.model.PlayerData
+import tech.ccat.byte.storage.model.TransactionRecord
 import java.util.concurrent.TimeUnit
 
 class MongoDBManager(private val config: PluginConfig) {
@@ -28,6 +31,7 @@ class MongoDBManager(private val config: PluginConfig) {
                 PojoCodecProvider.builder()
                     .automatic(true)
                     .register(PlayerData::class.java)
+                    .register(TransactionRecord::class.java)
                     .build()
             )
         )
@@ -67,6 +71,13 @@ class MongoDBManager(private val config: PluginConfig) {
         )
     }
 
+    fun getTransactionRecordDao(): TransactionRecordDao {
+        // 使用单独的集合存储交易记录
+        return MongoTransactionRecordDao(
+            database.getCollection(config.transactionRecordsCollection, TransactionRecord::class.java)
+                .withCodecRegistry(codecRegistry) // 应用编解码器到集合
+        )
+    }
 
     fun close() {
         mongoClient.close()

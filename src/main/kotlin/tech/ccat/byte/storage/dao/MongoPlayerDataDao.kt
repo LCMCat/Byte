@@ -47,16 +47,13 @@ class MongoPlayerDataDao(
         update: (PlayerData) -> PlayerData
     ): Boolean {
         return ExceptionHandler.wrapOrDefault("原子更新玩家数据", false) {
-            // 读取当前数据
             val current = collection.find(eq("uuid", uuid)).first()
                 ?: return@wrapOrDefault false
 
-            // 创建更新后对象
             val updated = update(current).apply {
                 version = current.version + 1  // 增加版本号
             }
 
-            // 原子条件更新
             val result = collection.replaceOne(
                 and(eq("uuid", uuid), eq("version", current.version)),
                 updated

@@ -11,6 +11,7 @@ class PluginConfig(config: ConfigurationSection) {
     val mongoUri: String = config.getString("mongo.uri") ?: "mongodb://localhost:27017"
     val mongoDatabase: String = config.getString("mongo.database") ?: "byte_economy"
     val mongoCollection: String = config.getString("mongo.collection") ?: "BytesCollection"
+    val transactionRecordsCollection: String = config.getString("mongo.transaction_records_collection") ?: "transaction_records"
     
     val shutdownOnFailure: Boolean = config.getBoolean("shutdown-on-failure", false)
 }

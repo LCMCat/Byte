@@ -5,6 +5,7 @@ import org.bukkit.command.CommandSender
 import org.bukkit.command.TabExecutor
 import org.bukkit.entity.Player
 import tech.ccat.byte.util.MessageFormatter
+import tech.ccat.byte.util.MessageKeys
 
 class CommandManager() : TabExecutor {
     private val commands = mutableMapOf<String, AbstractCommand>()
@@ -25,17 +26,17 @@ class CommandManager() : TabExecutor {
         val subCommand = commands[args[0].lowercase()] ?: return sendSenderHelp(sender)
 
         if (subCommand.playerOnly && sender !is Player) {
-            sender.sendMessage(MessageFormatter.format("player-command"))
+            sender.sendMessage(MessageFormatter.format(MessageKeys.PLAYER_COMMAND))
             return true
         }
 
         if (subCommand.permission != null && !sender.hasPermission(subCommand.permission)) {
-            sender.sendMessage(MessageFormatter.format("no-permission"))
+            sender.sendMessage(MessageFormatter.format(MessageKeys.NO_PERMISSION))
             return true
         }
 
         if (args.size < subCommand.minArgs) {
-            sender.sendMessage(MessageFormatter.format("command-usage", subCommand.usage))
+            sender.sendMessage(MessageFormatter.format(MessageKeys.COMMAND_USAGE, subCommand.usage))
             return true
         }
 
@@ -63,10 +64,10 @@ class CommandManager() : TabExecutor {
         val available = getAvailableCommands(sender)
 
         if (available.isEmpty()) {
-            sender.sendMessage(MessageFormatter.format("no-available-command"))
+            sender.sendMessage(MessageFormatter.format(MessageKeys.NO_AVAILABLE_COMMAND))
         } else {
             val helpText = available.joinToString("\n") { it.usage }
-            sender.sendMessage(MessageFormatter.format("command-list-header") + "\n$helpText")
+            sender.sendMessage(MessageFormatter.format(MessageKeys.COMMAND_LIST_HEADER) + "\n$helpText")
         }
         return true
     }
