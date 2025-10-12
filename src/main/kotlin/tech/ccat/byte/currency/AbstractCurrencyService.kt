@@ -1,4 +1,4 @@
-package tech.ccat.byte.service
+package tech.ccat.byte.currency
 
 import org.bukkit.Bukkit
 import org.bukkit.OfflinePlayer
@@ -7,25 +7,41 @@ import tech.ccat.byte.storage.dao.TransactionRecordDao
 import tech.ccat.byte.storage.model.PlayerData
 import tech.ccat.byte.storage.model.TransactionRecord
 import tech.ccat.byte.storage.model.TransactionType
+import tech.ccat.byte.util.LoggerUtil
 import java.util.*
 import java.util.concurrent.CompletableFuture
-import kotlin.random.Random
 
 import tech.ccat.byte.BytePlugin.Companion.instance
-import tech.ccat.byte.util.LoggerUtil
 
 /**
- * Byte插件的核心服务实现类
+ * 抽象货币服务实现类，为具体货币实现提供通用功能
  *
- * 该类实现了ByteService接口，提供了玩家经济系统的完整实现。
- * 包括余额查询、修改、并发安全更新、排行榜等功能。
+ * 该类实现了AbstractCurrency接口的通用功能，包括余额查询、修改、并发安全更新、排行榜等。
+ * 具体的货币实现可以继承此类并实现特定功能。
  */
-class ByteServiceImpl(
-    private val dao: PlayerDataDao,
-    private val transactionRecordDao: TransactionRecordDao
-) : ByteService {
+abstract class AbstractCurrencyService(
+    protected val dao: PlayerDataDao,
+    protected val transactionRecordDao: TransactionRecordDao,
+    override val currencyType: CurrencyType,
+    override val currencyName: String
+) : AbstractCurrency {
+    abstract override val currencySymbol: String
+    abstract override val currencyColor: String
+    
+    override val currencyId: String
+        get() = currencyType.getId()
 
-    private val plugin = instance
+    protected val plugin = instance
+    
+    /**
+     * 格式化货币金额
+     *
+     * @param amount 金额
+     * @return 格式化后的字符串
+     */
+    override fun format(amount: Double): String {
+        return "${currencyColor.replace('&', '§')}${String.format("%.2f", amount)}$currencySymbol§r"
+    }
 
     /**
      * 获取或创建玩家数据(同步)
@@ -35,7 +51,7 @@ class ByteServiceImpl(
      * @param uuid 玩家的唯一标识符
      * @return 玩家数据对象
      */
-    fun getOrCreate(uuid: UUID): PlayerData {
+    protected fun getOrCreate(uuid: UUID): PlayerData {
         val new = PlayerData(uuid, 0.0)
         return dao.load(uuid) ?: new.also {
             dao.create(new)
@@ -50,7 +66,7 @@ class ByteServiceImpl(
      * @param uuid 玩家的唯一标识符
      * @return 异步返回玩家数据对象
      */
-    fun getOrCreateAsync(uuid: UUID): CompletableFuture<PlayerData> {
+    protected fun getOrCreateAsync(uuid: UUID): CompletableFuture<PlayerData> {
         return dao.loadAsync(uuid).thenComposeAsync { data ->
             data?.let { CompletableFuture.completedFuture(it) }
                 ?: run {
@@ -70,7 +86,7 @@ class ByteServiceImpl(
      * @param maxRetries 最大重试次数，默认为5次
      * @return 异步操作结果，成功返回true，失败返回false
      */
-    fun updateBalanceAsync(
+    protected fun updateBalanceAsync(
         uuid: UUID,
         update: (Double) -> Double,
         maxRetries: Int = 5
@@ -120,48 +136,6 @@ class ByteServiceImpl(
             } else {
                 future.completeExceptionally(ConcurrentModificationException("账户更新冲突: $uuid"))
             }
-        }
-    }
-
-    /**
-     * 安全更新余额（已弃用）
-     *
-     * 使用同步阻塞方式更新余额，已弃用，请使用attemptUpdate替代。
-     *
-     * @param uuid 玩家的唯一标识符
-     * @param update 余额更新函数
-     * @param maxRetries 最大重试次数，默认为5次
-     * @deprecated 使用attemptUpdate替代
-     */
-    @Deprecated("use attemptUpdate instead.")
-    fun updateBalance(
-        uuid: UUID,
-        update: (Double) -> Double,
-        maxRetries: Int = 5
-    ) {
-        var retries = 0
-        var success = false
-
-        while (!success && retries < maxRetries) {
-            LoggerUtil.debug("Attempting to update balance for UUID: $uuid")
-            val data = getOrCreate(uuid)
-            LoggerUtil.debug("Retrieved data for UUID: ${data.uuid}")
-            val newBalance = update(data.balance)
-
-            success = dao.atomicUpdate(uuid) {
-                it.copy(balance = newBalance)
-            }
-
-            if (!success) {
-                retries++
-                // 指数退避策略
-                val waitTime = (10L shl retries) + Random.nextLong(10)
-                Thread.sleep(waitTime)
-            }
-        }
-
-        if (!success) {
-            throw ConcurrentModificationException("账户更新冲突: $uuid")
         }
     }
 
@@ -221,7 +195,6 @@ class ByteServiceImpl(
             } else {
                 // 执行转账操作
                 performTransfer(fromUuid, toUuid, amount, future)
-                future
             }
             CompletableFuture.completedFuture(null)
         }.exceptionally { ex ->
@@ -288,8 +261,16 @@ class ByteServiceImpl(
      * @param fromUuid 发送方玩家的唯一标识符
      * @param toUuid 接收方玩家的唯一标识符
      * @param amount 转账金额
+     * @param transactionType 交易类型
+     * @param description 交易描述
      */
-    private fun recordTransaction(fromUuid: UUID, toUuid: UUID, amount: Double) {
+    fun recordTransaction(
+        fromUuid: UUID, 
+        toUuid: UUID, 
+        amount: Double, 
+        transactionType: TransactionType = TransactionType.PLAYER_TO_PLAYER,
+        description: String = "玩家转账"
+    ) {
         // 异步获取双方余额用于记录
         val fromBalanceFuture = getOrCreateAsync(fromUuid).thenApply { it.balance }
         val toBalanceFuture = getOrCreateAsync(toUuid).thenApply { it.balance }
@@ -305,8 +286,8 @@ class ByteServiceImpl(
                 toPlayerUuid = toUuid,
                 amount = amount,
                 timestamp = System.currentTimeMillis(),
-                type = TransactionType.PLAYER_TO_PLAYER,
-                description = "玩家转账",
+                type = transactionType,
+                description = description,
                 fromPlayerBalanceBefore = fromBalance + amount,
                 fromPlayerBalanceAfter = fromBalance,
                 toPlayerBalanceBefore = toBalance - amount,
@@ -353,11 +334,9 @@ class ByteServiceImpl(
             sortedPlayers.forEach { playerData ->
                 try {
                     val offlinePlayer = Bukkit.getOfflinePlayer(playerData.uuid)
-                    // 尝试获取玩家名称，如果获取不到则使用UUID作为显示名称
-//                    val playerName = offlinePlayer.name ?: playerData.uuid.toString().substring(0, 8) + "..."
                     result.add(Pair(offlinePlayer, playerData.balance))
                 } catch (e: Exception) {
-                    LoggerUtil.severe("[Byte] 错误: 处理玩家数据时出错 - UUID: ${playerData.uuid}, 错误: ${e.message}")
+                    LoggerUtil.severe("[Currency] 错误: 处理玩家数据时出错 - UUID: ${playerData.uuid}, 错误: ${e.message}")
                 }
             }
             

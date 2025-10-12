@@ -4,14 +4,19 @@ import org.bukkit.command.Command
 import org.bukkit.command.CommandSender
 import org.bukkit.command.TabExecutor
 import org.bukkit.entity.Player
+import tech.ccat.byte.currency.AbstractCurrency
 import tech.ccat.byte.util.MessageFormatter
 import tech.ccat.byte.util.MessageKeys
 
-class CommandManager() : TabExecutor {
+class CommandManager(private val currency: AbstractCurrency) : TabExecutor {
     private val commands = mutableMapOf<String, AbstractCommand>()
 
     fun registerCommand(command: AbstractCommand) {
         commands[command.name] = command
+    }
+    
+    fun clearCommands() {
+        commands.clear()
     }
 
     override fun onCommand(sender: CommandSender, cmd: Command, label: String, args: Array<out String>): Boolean {
@@ -67,7 +72,7 @@ class CommandManager() : TabExecutor {
             sender.sendMessage(MessageFormatter.format(MessageKeys.NO_AVAILABLE_COMMAND))
         } else {
             val helpText = available.joinToString("\n") { it.usage }
-            sender.sendMessage(MessageFormatter.format(MessageKeys.COMMAND_LIST_HEADER) + "\n$helpText")
+            sender.sendMessage(MessageFormatter.format(MessageKeys.COMMAND_LIST_HEADER, currency.commandEntrance) + "\n$helpText")
         }
         return true
     }

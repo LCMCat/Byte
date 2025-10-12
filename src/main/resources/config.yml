@@ -1,13 +1,42 @@
-currency:
-  name: "Byte"
-  flag: "§9§k|||§r"
-command:
-  #主命令入口名称
-  entrance: "byte"
+# 每种货币的独立配置 （其实以下字段除了mongo配置以外都无效）
+currencies:
+  byte:
+    name: "字节"
+    symbol: "§9§k|||§r"
+    color: "&9"
+    command: "byte"
+    enabled: true
+    mongo:
+      database: "CatTitanium"
+      collection: "bytesCollection"
+      transaction_records_collection: "bytesTransactionRecords"
+  coin:
+    name: "金币"
+    symbol: "＄"
+    color: "&e"
+    command: "coin"
+    enabled: true
+    mongo:
+      database: "CatTitanium"
+      collection: "coinsCollection"
+      transaction_records_collection: "coinsTransactionRecords"
+  point:
+    name: "点券"
+    symbol: "■"
+    color: "&3"
+    command: "point"
+    enabled: true
+    mongo:
+      database: "CatTitanium"
+      collection: "pointsCollection"
+      transaction_records_collection: "pointsTransactionRecords"
+
+#默认mongo配置，collection可忽略
 mongo:
   uri: "mongodb://localhost:27017"
   database: "CatTitanium"
-  collection: "BytesCollection"
-  transaction_records_collection: "transaction_records"
+  collection: "bytesCollection"
+  transaction_records_collection: "transactionRecords"
+
 # 当初始化失败时是否自动关闭服务器（默认false）
 shutdown-on-failure: false

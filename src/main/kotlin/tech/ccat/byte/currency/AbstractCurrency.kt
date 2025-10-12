@@ -1,17 +1,64 @@
-package tech.ccat.byte.service
+package tech.ccat.byte.currency
 
 import org.bukkit.OfflinePlayer
+import tech.ccat.byte.command.CommandManager
+import tech.ccat.byte.config.PluginConfig
 import tech.ccat.byte.storage.model.TransactionRecord
 import java.util.*
 import java.util.concurrent.CompletableFuture
 
 /**
- * Byte插件的核心服务接口，提供玩家经济系统的操作方法
+ * 抽象货币系统接口，定义所有货币类型应实现的基本功能
  *
- * 该接口定义了所有与玩家货币相关的操作，包括查询余额、修改余额、
- * 获取服务器总货币量以及获取财富排行榜等功能。
+ * 该接口为不同类型的货币系统提供了统一的API，使得插件可以支持多种货币类型。
  */
-interface ByteService {
+interface AbstractCurrency {
+    /**
+     * 获取货币系统的唯一标识符
+     *
+     * @return 货币系统的唯一标识符
+     */
+    val currencyId: String
+        get() = currencyType.getId()
+    
+    /**
+     * 获取货币类型枚举
+     *
+     * @return 货币类型枚举
+     */
+    val currencyType: CurrencyType
+    
+    /**
+     * 获取货币系统的名称
+     *
+     * @return 货币系统的名称
+     */
+    val currencyName: String
+    
+    /**
+     * 获取货币系统的符号
+     *
+     * @return 货币系统的符号
+     */
+    val currencySymbol: String
+    
+    /**
+     * 获取货币系统的颜色代码
+     *
+     * @return 货币系统的颜色代码
+     */
+    val currencyColor: String
+    
+    /**
+     * 创建该货币专属的命令管理器
+     */
+    fun createCommandManager(config: PluginConfig): CommandManager
+
+    /**
+     * 获取该货币的命令入口点
+     */
+    val commandEntrance: String
+    
     /**
      * 根据玩家UUID获取其当前余额
      *
@@ -100,4 +147,5 @@ interface ByteService {
      * @return 异步返回交易记录列表
      */
     fun getAllTransactionRecords(page: Int, pageSize: Int): CompletableFuture<List<TransactionRecord>>
+    fun format(amount: Double): String
 }

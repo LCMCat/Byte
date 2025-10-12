@@ -6,7 +6,7 @@ import tech.ccat.byte.util.MessageKeys
 
 import tech.ccat.byte.BytePlugin.Companion.instance
 
-class ReloadCommand(private val commandEntrance: String) : AbstractCommand(
+class ReloadCommand(commandEntrance: String) : AbstractCommand(
     name = "reload",
     permission = "$commandEntrance.admin",
     usage = "/$commandEntrance reload"

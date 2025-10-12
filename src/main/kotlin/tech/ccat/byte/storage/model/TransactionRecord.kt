@@ -3,7 +3,6 @@ package tech.ccat.byte.storage.model
 import org.bson.codecs.pojo.annotations.BsonCreator
 import org.bson.codecs.pojo.annotations.BsonProperty
 import java.util.*
-import tech.ccat.byte.storage.model.TransactionType
 
 /**
  * 交易记录数据模型

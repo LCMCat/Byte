@@ -7,3 +7,9 @@ commands:
   byte:
     description: Manage byte currency
     usage: /byte [add/set/take/reload]
+  coin:
+    description: Manage coin currency
+    usage: /coin [add/set/take]
+  point:
+    description: Manage point currency
+    usage: /point [add/set/take]

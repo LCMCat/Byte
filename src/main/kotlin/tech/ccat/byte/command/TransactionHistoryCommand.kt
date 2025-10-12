@@ -2,8 +2,7 @@ package tech.ccat.byte.command
 
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
-import tech.ccat.byte.service.ByteService
-import tech.ccat.byte.storage.model.TransactionRecord
+import tech.ccat.byte.currency.AbstractCurrency
 import tech.ccat.byte.storage.model.TransactionType
 import tech.ccat.byte.util.MessageFormatter
 import tech.ccat.byte.util.MessageKeys
@@ -12,8 +11,8 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 class TransactionHistoryCommand(
-    private val commandEntrance: String,
-    private val byteService: ByteService
+    commandEntrance: String,
+    private val currency: AbstractCurrency
 ) : AbstractCommand(
     name = "transactionhistory",
     permission = "byte.command.transactionhistory",
@@ -40,9 +39,9 @@ class TransactionHistoryCommand(
         val pageSize = 10
 
         val recordsFuture = if (sender is Player) {
-            byteService.getTransactionRecords(sender.uniqueId, page, pageSize)
+            currency.getTransactionRecords(sender.uniqueId, page, pageSize)
         } else {
-            byteService.getAllTransactionRecords(page, pageSize)
+            currency.getAllTransactionRecords(page, pageSize)
         }
 
         recordsFuture.thenAccept { records ->
@@ -61,7 +60,7 @@ class TransactionHistoryCommand(
 
                 records.forEach { record ->
                     val timestamp = dateFormat.format(Date(record.timestamp))
-                    val amount = MessageFormatter.formatCurrency(record.amount)
+                    val amount = formatCurrency(record.amount)
                     
                     when (record.type) {
                         TransactionType.PLAYER_TO_PLAYER -> {
@@ -157,6 +156,10 @@ class TransactionHistoryCommand(
         }
 
         return true
+    }
+
+    fun formatCurrency(amount: Double): String{
+        return currency.format(amount)
     }
 
     override fun onTabComplete(sender: CommandSender, args: Array<out String>): List<String> {
